@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>2026 Classic Interface // Strict Dependence</title>
+  <title>2026 Classic Interface // Modifier 0.3</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap');
     
@@ -165,10 +165,11 @@
       background: transparent; 
       border: none; 
       color: var(--text-muted); 
-      padding: 6px 12px; 
+      padding: 6px 8px; 
       border-radius: 100px; 
       cursor: pointer; 
       font-family: inherit;
+      font-size: 12px;
     }
     
     .seg-btn.active { 
@@ -194,6 +195,7 @@
       padding: 4px;
       width: 100%;
       box-sizing: border-box;
+      justify-content: space-between;
     }
   </style>
 </head>
@@ -231,6 +233,7 @@
         <div class="counter-value">Значение: <span id="count-c">0</span></div>
         <div class="segmented-control" id="coeffs-c">
           <button class="seg-btn" onclick="setCoeff('C', 0.2, this)">0.2</button>
+          <button class="seg-btn" onclick="setCoeff('C', 0.3, this)">0.3</button>
           <button class="seg-btn active" onclick="setCoeff('C', 0.4, this)">0.4</button>
           <button class="seg-btn" onclick="setCoeff('C', 0.6, this)">0.6</button>
         </div>
@@ -240,6 +243,7 @@
         <div class="counter-value">Значение: <span id="count-j">0</span></div>
         <div class="segmented-control" id="coeffs-j">
           <button class="seg-btn" onclick="setCoeff('J', 0.2, this)">0.2</button>
+          <button class="seg-btn" onclick="setCoeff('J', 0.3, this)">0.3</button>
           <button class="seg-btn active" onclick="setCoeff('J', 0.4, this)">0.4</button>
           <button class="seg-btn" onclick="setCoeff('J', 0.6, this)">0.6</button>
         </div>
@@ -251,7 +255,7 @@
     let state = { countC: 0, countJ: 0, coeffC: 0.4, coeffJ: 0.4, historyC: [], historyJ: [] };
 
     function loadData() {
-      const saved = localStorage.getItem('classic_2026_v5');
+      const saved = localStorage.getItem('classic_2026_v6');
       if (saved) {
         state = JSON.parse(saved);
         updateCoeffVisuals('C', state.coeffC);
@@ -261,7 +265,7 @@
     }
 
     function saveData() {
-      localStorage.setItem('classic_2026_v5', JSON.stringify(state));
+      localStorage.setItem('classic_2026_v6', JSON.stringify(state));
     }
 
     function getSum(arr) {
