@@ -18,7 +18,8 @@
     .settings-btn { flex: 1; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: #888; padding: 12px; border-radius: 12px; cursor: pointer; transition: 0.3s; }
     .settings-btn.active { background: rgba(255,255,255,0.1); border-color: var(--neon-cyan); color: #fff; }
     .settings-panel { display: none; background: rgba(0,0,0,0.2); border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); }
-    .modern-input { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 10px; border-radius: 8px; width: 100%; box-sizing: border-box; margin-top: 5px; font-family: inherit;}
+    .input-wrapper { display: flex; flex-direction: column; width: 60%; gap: 5px; }
+    .modern-input { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 10px; border-radius: 8px; width: 100%; box-sizing: border-box; font-family: inherit;}
     .cloud-btn { width: 100%; background: var(--neon-blue); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; margin-top: 10px; font-weight: 700; }
     .counters-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
     .counter-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 15px; display: flex; flex-direction: column; align-items: center; }
@@ -43,8 +44,8 @@
       <button class="settings-btn" id="btn-cloud" onclick="toggleTab('cloud')">Облако</button>
     </div>
     <div id="panel-manual" class="settings-panel">
-      <div class="stat-row">C <input type="number" id="input-c" class="modern-input" onchange="applyManual()"></div>
-      <div class="stat-row">J <input type="number" id="input-j" class="modern-input" onchange="applyManual()"></div>
+      <div class="stat-row">C <div class="input-wrapper"><input type="number" id="input-c" class="modern-input" onchange="applyManual()"></div></div>
+      <div class="stat-row">J <div class="input-wrapper"><input type="number" id="input-j" class="modern-input" onchange="applyManual()"></div></div>
     </div>
     <div id="panel-cloud" class="settings-panel">
       <input type="text" id="input-sync-id" class="modern-input" placeholder="Введите ID...">
@@ -73,8 +74,7 @@
   </div>
   <script>
     let state = { countC: 0, countJ: 0, coeffC: 0.4, coeffJ: 0.4, historyC: [], historyJ: [], syncId: "" };
-    let isCloudSynced = false; 
-    let isInitializing = true;
+    let isCloudSynced = false; let isInitializing = true;
     const apiBase = "https://api.npoint.io/";
     function updateStatus(text, color = "#666") { const el = document.getElementById('cloud-status'); if(el) { el.textContent = text; el.style.color = color; } }
     function saveLocal() { state.syncId = document.getElementById('input-sync-id').value.trim(); localStorage.setItem('classic_sync_v18', JSON.stringify(state)); }
@@ -105,7 +105,14 @@
     }
     function addClick(type) { if (isInitializing) return; if (type === 'C') { state.countC++; state.historyC.push(state.coeffC); } else { state.countJ++; state.historyJ.push(state.coeffJ); } updateUI(); autoSave(); }
     function setCoeff(type, val, btn) { if (isInitializing) return; if (type === 'C') state.coeffC = val; else state.coeffJ = val; updateCoeffVisuals(type, val); autoSave(); }
-    function applyManual() { if (isInitializing) return; state.countC = parseInt(document.getElementById('input-c').value) || 0; state.countJ = parseInt(document.getElementById('input-j').value) || 0; updateUI(); autoSave(); }
+    function applyManual() { 
+      if (isInitializing) return; 
+      state.countC = parseInt(document.getElementById('input-c').value) || 0; 
+      state.countJ = parseInt(document.getElementById('input-j').value) || 0;
+      state.historyC = Array(state.countC).fill(state.coeffC || 0.4);
+      state.historyJ = Array(state.countJ).fill(state.coeffJ || 0.4);
+      updateUI(); autoSave(); 
+    }
     function updateUI() { 
         document.getElementById('val-c').textContent = state.countC;
         document.getElementById('val-j').textContent = state.countJ;
@@ -119,4 +126,4 @@
     window.onload = async () => { const saved = localStorage.getItem('classic_sync_v18'); if (saved) { state = JSON.parse(saved); document.getElementById('input-sync-id').value = state.syncId; updateUI(); updateCoeffVisuals('C', state.coeffC); updateCoeffVisuals('J', state.coeffJ); if (state.syncId) await loadFromCloud(); else isInitializing = false; } else { isInitializing = false; } };
   </script>
 </body>
-</html>00 
+</html>
