@@ -3,45 +3,275 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>2026 Classic Interface // Linked Logic</title>
+  <title>2026 Classic Interface // Dependent Logic</title>
   <style>
-    /* Стили остаются прежними для сохранения дизайна 2026 года */
     @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap');
+
     :root {
-      --bg-dark: #09090b; --glass-bg: rgba(255, 255, 255, 0.03);
-      --glass-border: rgba(255, 255, 255, 0.08); --text-main: #f4f4f5;
-      --text-muted: #a1a1aa; --radius-large: 32px;
-      --radius-medium: 20px; --radius-small: 12px;
+      --bg-dark: #09090b;
+      --glass-bg: rgba(255, 255, 255, 0.03);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --text-main: #f4f4f5;
+      --text-muted: #a1a1aa;
+      --accent-c: #8b5cf6; 
+      --accent-j: #14b8a6; 
+      --radius-large: 32px;
+      --radius-medium: 20px;
+      --radius-small: 12px;
     }
-    body { margin: 0; min-height: 100vh; font-family: 'Outfit', sans-serif; color: var(--text-main); background-color: var(--bg-dark); display: flex; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
-    .bento-container { background: rgba(20, 20, 25, 0.4); backdrop-filter: blur(40px); border: 1px solid var(--glass-border); border-radius: var(--radius-large); padding: 32px; width: 100%; max-width: 480px; }
-    .results-panel { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-medium); padding: 24px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px; }
-    .stat-row { display: flex; justify-content: space-between; align-items: center; }
-    .stat-label { color: var(--text-muted); font-weight: 300; font-size: 15px; }
-    .stat-value { font-size: 20px; font-weight: 500; }
-    .total-output { font-size: 28px; font-weight: 700; color: #fff; }
-    .settings-btn { width: 100%; background: transparent; border: 1px solid var(--glass-border); color: var(--text-muted); padding: 12px; border-radius: var(--radius-small); cursor: pointer; margin-bottom: 20px; }
-    .settings-panel { display: none; background: rgba(0, 0, 0, 0.2); border-radius: var(--radius-medium); padding: 20px; margin-bottom: 20px; border: 1px solid var(--glass-border); }
-    .input-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-    .modern-input { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); color: var(--text-main); padding: 8px 12px; border-radius: 8px; width: 80px; text-align: center; }
-    .apply-btn { width: 100%; background: var(--text-main); color: var(--bg-dark); border: none; padding: 10px; border-radius: 8px; font-weight: 500; cursor: pointer; }
-    .counters-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    .counter-card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-medium); padding: 24px 16px; display: flex; flex-direction: column; align-items: center; }
-    .action-btn { width: 80px; height: 80px; border-radius: 24px; border: none; font-size: 32px; font-weight: 700; color: #fff; cursor: pointer; margin-bottom: 16px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
-    .btn-c { background: linear-gradient(135deg, #a78bfa, #7c3aed); }
-    .btn-j { background: linear-gradient(135deg, #2dd4bf, #0d9488); }
-    .seg-btn { background: transparent; border: none; color: var(--text-muted); padding: 6px 12px; border-radius: 100px; cursor: pointer; }
-    .seg-btn.active { background: rgba(255, 255, 255, 0.1); color: #fff; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'Outfit', sans-serif;
+      color: var(--text-main);
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 15% 20%, rgba(139, 92, 246, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 85% 80%, rgba(20, 184, 166, 0.15) 0%, transparent 40%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .bento-container {
+      background: rgba(20, 20, 25, 0.4);
+      backdrop-filter: blur(40px);
+      -webkit-backdrop-filter: blur(40px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-large);
+      padding: 32px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .results-panel {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-medium);
+      padding: 24px;
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .stat-label {
+      color: var(--text-muted);
+      font-weight: 300;
+      font-size: 15px;
+    }
+
+    .stat-value {
+      font-size: 20px;
+      font-weight: 500;
+    }
+
+    .stat-value.total-output {
+      font-size: 28px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #fff, #a1a1aa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--glass-border);
+      margin: 4px 0;
+    }
+
+    .settings-btn {
+      width: 100%;
+      background: transparent;
+      border: 1px solid var(--glass-border);
+      color: var(--text-muted);
+      padding: 12px;
+      border-radius: var(--radius-small);
+      font-family: inherit;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 20px;
+    }
+
+    .settings-btn:hover {
+      background: var(--glass-bg);
+      color: var(--text-main);
+    }
+
+    .settings-panel {
+      display: none;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: var(--radius-medium);
+      padding: 20px;
+      margin-bottom: 20px;
+      border: 1px solid var(--glass-border);
+    }
+
+    .settings-panel h4 {
+      margin: 0 0 16px 0;
+      font-weight: 500;
+      font-size: 16px;
+    }
+
+    .input-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .modern-input {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      color: var(--text-main);
+      padding: 8px 12px;
+      border-radius: 8px;
+      width: 80px;
+      text-align: center;
+      font-family: inherit;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+
+    .modern-input:focus {
+      outline: none;
+      border-color: rgba(255,255,255,0.3);
+    }
+
+    .apply-btn {
+      width: 100%;
+      background: var(--text-main);
+      color: var(--bg-dark);
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 8px;
+      font-family: inherit;
+    }
+
+    .counters-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .counter-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-medium);
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .counter-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .action-btn {
+      width: 80px;
+      height: 80px;
+      border-radius: 24px;
+      border: none;
+      font-size: 32px;
+      font-weight: 700;
+      font-family: inherit;
+      color: #fff;
+      cursor: pointer;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.2s;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2), inset 0 2px 4px rgba(255,255,255,0.2);
+    }
+
+    .action-btn:active {
+      transform: scale(0.92);
+    }
+
+    .btn-c {
+      background: linear-gradient(135deg, #a78bfa, #7c3aed);
+      box-shadow: 0 12px 24px rgba(139, 92, 246, 0.3), inset 0 2px 4px rgba(255,255,255,0.3);
+    }
+
+    .btn-j {
+      background: linear-gradient(135deg, #2dd4bf, #0d9488);
+      box-shadow: 0 12px 24px rgba(20, 184, 166, 0.3), inset 0 2px 4px rgba(255,255,255,0.3);
+    }
+
+    .counter-value {
+      font-size: 16px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .counter-value span {
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .segmented-control {
+      display: flex;
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 100px;
+      padding: 4px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .seg-btn {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 6px 0;
+      border-radius: 100px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .seg-c .seg-btn.active {
+      background: rgba(255, 255, 255, 0.1);
+      color: #a78bfa;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .seg-j .seg-btn.active {
+      background: rgba(255, 255, 255, 0.1);
+      color: #2dd4bf;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
   </style>
 </head>
 <body>
 
   <div class="bento-container">
+    
     <div class="results-panel">
       <div class="stat-row">
         <span class="stat-label">Сумма</span>
         <span class="stat-value" id="total-clicks">0</span>
       </div>
+      <div class="divider"></div>
       <div class="stat-row">
         <span class="stat-label">Итоговый расчет</span>
         <span class="stat-value total-output" id="accumulated-output">0.0</span>
@@ -51,6 +281,7 @@
     <button class="settings-btn" onclick="toggleSettings()">Настроить значения вручную</button>
 
     <div id="settings-panel" class="settings-panel">
+      <h4>Ручное управление</h4>
       <div class="input-row">
         <span class="stat-label">Счетчик C</span>
         <input type="number" id="input-c" class="modern-input" value="0">
@@ -59,23 +290,24 @@
         <span class="stat-label">Счетчик J</span>
         <input type="number" id="input-j" class="modern-input" value="0">
       </div>
-      <button class="apply-btn" onclick="applyManualOverride()">Применить изменения</button>
+      <button class="apply-btn" onclick="applyManualOverride()">Сохранить изменения</button>
     </div>
 
     <div class="counters-grid">
       <div class="counter-card">
         <button id="btn-c" class="action-btn btn-c">C</button>
-        <span id="count-c">0</span>
-        <div id="coeffs-c">
+        <div class="counter-value">Значение: <span id="count-c">0</span></div>
+        <div class="segmented-control seg-c" id="coeffs-c">
           <button class="seg-btn" onclick="setCoeff('C', 0.2, this)">0.2</button>
           <button class="seg-btn active" onclick="setCoeff('C', 0.4, this)">0.4</button>
           <button class="seg-btn" onclick="setCoeff('C', 0.6, this)">0.6</button>
         </div>
       </div>
+
       <div class="counter-card">
         <button id="btn-j" class="action-btn btn-j">J</button>
-        <span id="count-j">0</span>
-        <div id="coeffs-j">
+        <div class="counter-value">Значение: <span id="count-j">0</span></div>
+        <div class="segmented-control seg-j" id="coeffs-j">
           <button class="seg-btn" onclick="setCoeff('J', 0.2, this)">0.2</button>
           <button class="seg-btn active" onclick="setCoeff('J', 0.4, this)">0.4</button>
           <button class="seg-btn" onclick="setCoeff('J', 0.6, this)">0.6</button>
@@ -85,58 +317,97 @@
   </div>
 
   <script>
-    let state = { countC: 0, countJ: 0, coeffC: 0.4, coeffJ: 0.4, history: [] };
+    let state = {
+      countC: 0,
+      countJ: 0,
+      coeffC: 0.4,
+      coeffJ: 0.4,
+      accumulatedScore: 0.0 
+    };
+
+    function loadData() {
+      const saved = localStorage.getItem('classic_2026_data_v3');
+      if (saved) {
+        state = JSON.parse(saved);
+        updateCoeffVisuals('C', state.coeffC);
+        updateCoeffVisuals('J', state.coeffJ);
+      }
+      updateUI();
+    }
+
+    function saveData() {
+      localStorage.setItem('classic_2026_data_v3', JSON.stringify(state));
+    }
 
     function updateUI() {
       document.getElementById('count-c').textContent = state.countC;
       document.getElementById('count-j').textContent = state.countJ;
-      document.getElementById('total-clicks').textContent = state.countC + state.countJ;
       
-      let sum = state.history.reduce((acc, item) => acc + item, 0);
-      document.getElementById('accumulated-output').textContent = sum.toFixed(1);
+      document.getElementById('input-c').value = state.countC;
+      document.getElementById('input-j').value = state.countJ;
+
+      const totalClicks = state.countC + state.countJ;
+      document.getElementById('total-clicks').textContent = totalClicks;
+
+      document.getElementById('accumulated-output').textContent = state.accumulatedScore.toFixed(1);
     }
 
     document.getElementById('btn-c').addEventListener('click', () => {
       state.countC++;
-      state.history.push(state.coeffC);
+      state.accumulatedScore = Math.round((state.accumulatedScore + state.coeffC) * 10) / 10;
       updateUI();
+      saveData();
     });
 
     document.getElementById('btn-j').addEventListener('click', () => {
       state.countJ++;
-      state.history.push(state.coeffJ);
+      state.accumulatedScore = Math.round((state.accumulatedScore + state.coeffJ) * 10) / 10;
       updateUI();
+      saveData();
     });
 
-    function setCoeff(type, val, btn) {
-      if (type === 'C') state.coeffC = val; else state.coeffJ = val;
-      btn.parentElement.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+    function setCoeff(type, value, btnElement) {
+      if (type === 'C') {
+        state.coeffC = value;
+        document.querySelectorAll('#coeffs-c .seg-btn').forEach(b => b.classList.remove('active'));
+      } else {
+        state.coeffJ = value;
+        document.querySelectorAll('#coeffs-j .seg-btn').forEach(b => b.classList.remove('active'));
+      }
+      btnElement.classList.add('active');
+      saveData();
+    }
+
+    function updateCoeffVisuals(type, val) {
+      const containerId = type === 'C' ? 'coeffs-c' : 'coeffs-j';
+      document.querySelectorAll(`#${containerId} .seg-btn`).forEach(btn => {
+        if (parseFloat(btn.textContent) === val) btn.classList.add('active');
+        else btn.classList.remove('active');
+      });
     }
 
     function toggleSettings() {
-      const p = document.getElementById('settings-panel');
-      p.style.display = p.style.display === 'block' ? 'none' : 'block';
+      const panel = document.getElementById('settings-panel');
+      panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
     }
 
+    // При ручном вводе пересчитываем accumulatedScore пропорционально текущим коэффициентам
     function applyManualOverride() {
-      let newC = parseInt(document.getElementById('input-c').value) || 0;
-      let newJ = parseInt(document.getElementById('input-j').value) || 0;
-
-      // Обрезаем историю, если кликов стало меньше
-      let totalClicks = newC + newJ;
-      if (state.history.length > totalClicks) {
-        state.history = state.history.slice(0, totalClicks);
-      } else if (state.history.length < totalClicks) {
-        // Если кликов стало больше, заполняем разницу текущим коэффициентом (по умолчанию 0.4)
-        while(state.history.length < totalClicks) state.history.push(0.4);
-      }
-
+      const newC = parseInt(document.getElementById('input-c').value) || 0;
+      const newJ = parseInt(document.getElementById('input-j').value) || 0;
+      
       state.countC = newC;
       state.countJ = newJ;
+      
+      // Пересчет зависит от актуального выбора коэффициентов под каждой кнопкой
+      state.accumulatedScore = Math.round(((newC * state.coeffC) + (newJ * state.coeffJ)) * 10) / 10;
+      
       updateUI();
+      saveData();
       toggleSettings();
     }
+
+    window.onload = loadData;
   </script>
 </body>
 </html>
