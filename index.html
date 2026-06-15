@@ -3,464 +3,138 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>2026 Classic Interface // Cloud Sync</title>
+  <title>2026 Auto-Sync</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap');
-    
     :root {
       --bg-dark: #2c2c35;
       --glass-bg: rgba(255, 255, 255, 0.06);
       --glass-border: rgba(255, 255, 255, 0.12);
       --text-main: #f4f4f5;
       --text-muted: #a1a1aa;
-      --radius-large: 32px;
-      --radius-medium: 20px;
-      --radius-small: 12px;
     }
-    
-    body { 
-      margin: 0; 
-      min-height: 100vh; 
-      font-family: 'Outfit', sans-serif; 
-      color: var(--text-main); 
-      background: linear-gradient(135deg, #444453 0%, #25252d 100%);
-      display: flex; 
-      justify-content: center; 
-      align-items: center; 
-      padding: 20px; 
-      box-sizing: border-box; 
-    }
-    
-    .bento-container { 
-      background: rgba(40, 40, 50, 0.5); 
-      backdrop-filter: blur(40px); 
-      border: 1px solid var(--glass-border); 
-      border-radius: var(--radius-large); 
-      padding: 32px; 
-      width: 100%; 
-      max-width: 480px; 
-      box-shadow: 0 25px 55px rgba(0,0,0,0.25);
-    }
-    
-    .results-panel { 
-      background: var(--glass-bg); 
-      border: 1px solid var(--glass-border); 
-      border-radius: var(--radius-medium); 
-      padding: 24px; 
-      margin-bottom: 20px; 
-      display: flex; 
-      flex-direction: column; 
-      gap: 12px; 
-    }
-    
-    .stat-row { 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-    }
-    
-    .stat-label { 
-      color: var(--text-muted); 
-      font-weight: 300; 
-      font-size: 15px; 
-    }
-    
-    .stat-value { 
-      font-size: 20px; 
-      font-weight: 500; 
-    }
-    
-    .total-output { 
-      font-size: 28px; 
-      font-weight: 700; 
-      color: #fff; 
-    }
-
-    .btn-group {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-    
-    .settings-btn { 
-      flex: 1;
-      background: transparent; 
-      border: 1px solid var(--glass-border); 
-      color: var(--text-muted); 
-      padding: 12px; 
-      border-radius: var(--radius-small); 
-      cursor: pointer; 
-      font-family: inherit;
-      font-size: 13px;
-    }
-
-    .settings-btn.active {
-      background: rgba(255, 255, 255, 0.1);
-      color: var(--text-main);
-    }
-    
-    .settings-panel { 
-      display: none; 
-      background: rgba(0, 0, 0, 0.15); 
-      border-radius: var(--radius-medium); 
-      padding: 20px; 
-      margin-bottom: 20px; 
-      border: 1px solid var(--glass-border); 
-    }
-    
-    .input-row { 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      margin-bottom: 12px; 
-    }
-    
-    .modern-input { 
-      background: rgba(255, 255, 255, 0.05); 
-      border: 1px solid var(--glass-border); 
-      color: var(--text-main); 
-      padding: 8px 12px; 
-      border-radius: 8px; 
-      width: 80px; 
-      text-align: center; 
-      font-family: inherit;
-    }
-
-    .modern-input.wide {
-      width: 140px;
-      text-align: left;
-    }
-    
-    .apply-btn { 
-      width: 100%; 
-      background: var(--text-main); 
-      color: #2c2c35; 
-      border: none; 
-      padding: 10px; 
-      border-radius: 8px; 
-      font-weight: 500; 
-      cursor: pointer; 
-      font-family: inherit;
-      margin-top: 8px;
-    }
-
-    .cloud-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 16px;
-    }
-
-    .cloud-btn {
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--text-main);
-      border: 1px solid var(--glass-border);
-      padding: 10px;
-      border-radius: 8px;
-      font-weight: 500;
-      cursor: pointer;
-      font-family: inherit;
-    }
-
-    .cloud-btn.primary {
-      background: #8b5cf6;
-      border-color: #a78bfa;
-    }
-    
-    .counters-grid { 
-      display: grid; 
-      grid-template-columns: 1fr 1fr; 
-      gap: 20px; 
-    }
-    
-    .counter-card { 
-      background: var(--glass-bg); 
-      border: 1px solid var(--glass-border); 
-      border-radius: var(--radius-medium); 
-      padding: 24px 16px; 
-      display: flex; 
-      flex-direction: column; 
-      align-items: center; 
-    }
-    
-    .action-btn { 
-      width: 80px; 
-      height: 80px; 
-      border-radius: 24px; 
-      border: none; 
-      font-size: 32px; 
-      font-weight: 700; 
-      color: #fff; 
-      cursor: pointer; 
-      margin-bottom: 16px; 
-      box-shadow: 0 10px 20px rgba(0,0,0,0.15); 
-      font-family: inherit;
-    }
-    
+    body { margin: 0; min-height: 100vh; font-family: 'Outfit', sans-serif; color: var(--text-main); background: linear-gradient(135deg, #444453 0%, #25252d 100%); display: flex; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
+    .bento-container { background: rgba(40, 40, 50, 0.5); backdrop-filter: blur(40px); border: 1px solid var(--glass-border); border-radius: 32px; padding: 32px; width: 100%; max-width: 480px; }
+    .results-panel { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 20px; padding: 24px; margin-bottom: 20px; }
+    .stat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .btn-group { display: flex; gap: 10px; margin-bottom: 20px; }
+    .settings-btn { flex: 1; background: transparent; border: 1px solid var(--glass-border); color: var(--text-muted); padding: 12px; border-radius: 12px; cursor: pointer; font-family: inherit; }
+    .settings-btn.active { background: rgba(255, 255, 255, 0.1); color: var(--text-main); }
+    .settings-panel { display: none; background: rgba(0, 0, 0, 0.15); border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--glass-border); }
+    .modern-input { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); color: var(--text-main); padding: 8px 12px; border-radius: 8px; width: 100px; }
+    .cloud-btn { width: 100%; background: #6366f1; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-family: inherit; font-weight: 500; }
+    .counters-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .counter-card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 20px; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+    .action-btn { width: 80px; height: 80px; border-radius: 24px; border: none; font-size: 32px; color: white; cursor: pointer; margin-bottom: 16px; }
     .btn-c { background: linear-gradient(135deg, #a78bfa, #7c3aed); }
     .btn-j { background: linear-gradient(135deg, #2dd4bf, #0d9488); }
-    
-    .seg-btn { 
-      background: transparent; 
-      border: none; 
-      color: var(--text-muted); 
-      padding: 6px 8px; 
-      border-radius: 100px; 
-      cursor: pointer; 
-      font-family: inherit;
-      font-size: 12px;
-    }
-    
-    .seg-btn.active { 
-      background: rgba(255, 255, 255, 0.1); 
-      color: #fff; 
-    }
-
-    .counter-value {
-      font-size: 16px;
-      color: var(--text-muted);
-      margin-bottom: 20px;
-    }
-
-    .counter-value span {
-      color: var(--text-main);
-      font-weight: 500;
-    }
-
-    .segmented-control {
-      display: flex;
-      background: rgba(0, 0, 0, 0.15);
-      border-radius: 100px;
-      padding: 4px;
-      width: 100%;
-      box-sizing: border-box;
-      justify-content: space-between;
-    }
+    .seg-btn { background: transparent; border: none; color: var(--text-muted); padding: 6px; cursor: pointer; font-size: 12px; }
+    .seg-btn.active { color: #fff; text-decoration: underline; }
   </style>
 </head>
 <body>
 
   <div class="bento-container">
     <div class="results-panel">
-      <div class="stat-row">
-        <span class="stat-label">Сумма</span>
-        <span class="stat-value" id="total-clicks">0</span>
-      </div>
-      <div class="stat-row">
-        <span class="stat-label">Итоговый расчет</span>
-        <span class="stat-value total-output" id="accumulated-output">0.0</span>
-      </div>
+      <div class="stat-row"><span>Сумма</span><span id="total-clicks">0</span></div>
+      <div class="stat-row"><span>Итог</span><span id="accumulated-output" style="font-weight:700">0.0</span></div>
     </div>
 
     <div class="btn-group">
-      <button class="settings-btn" id="btn-tab-manual" onclick="toggleTab('manual')">Настроить вручную</button>
-      <button class="settings-btn" id="btn-tab-cloud" onclick="toggleTab('cloud')">Синхронизация</button>
+      <button class="settings-btn" id="btn-tab-manual" onclick="toggleTab('manual')">Настройки</button>
+      <button class="settings-btn" id="btn-tab-cloud" onclick="toggleTab('cloud')">Облако</button>
     </div>
 
     <div id="panel-manual" class="settings-panel">
-      <div class="input-row">
-        <span class="stat-label">Счетчик C</span>
-        <input type="number" id="input-c" class="modern-input" value="0">
-      </div>
-      <div class="input-row">
-        <span class="stat-label">Счетчик J</span>
-        <input type="number" id="input-j" class="modern-input" value="0">
-      </div>
-      <button class="apply-btn" onclick="applyManualOverride()">Применить изменения</button>
+      <div class="stat-row">Счетчик C <input type="number" id="input-c" class="modern-input" onchange="applyManual()"></div>
+      <div class="stat-row">Счетчик J <input type="number" id="input-j" class="modern-input" onchange="applyManual()"></div>
     </div>
 
     <div id="panel-cloud" class="settings-panel">
-      <div class="input-row">
-        <span class="stat-label">Ваш ID для связи</span>
-        <input type="text" id="input-sync-id" class="modern-input wide" placeholder="Напр. ivan_99">
-      </div>
-      <div class="cloud-grid">
-        <button class="cloud-btn" onclick="cloudPull()">Скачать</button>
-        <button class="cloud-btn primary" onclick="cloudPush()">В облако</button>
-      </div>
+      <div class="stat-row">ID для sync <input type="text" id="input-sync-id" class="modern-input" oninput="saveData()" placeholder="введите ID"></div>
+      <button class="cloud-btn" onclick="cloudPull()">Загрузить из облака</button>
+      <div id="cloud-status" style="margin-top:10px; font-size:12px; text-align:center; color:#a1a1aa">Ожидание...</div>
     </div>
 
     <div class="counters-grid">
       <div class="counter-card">
         <button id="btn-c" class="action-btn btn-c">C</button>
-        <div class="counter-value">Значение: <span id="count-c">0</span></div>
-        <div class="segmented-control" id="coeffs-c">
-          <button class="seg-btn" onclick="setCoeff('C', 0.2, this)">0.2</button>
-          <button class="seg-btn" onclick="setCoeff('C', 0.3, this)">0.3</button>
-          <button class="seg-btn active" onclick="setCoeff('C', 0.4, this)">0.4</button>
-          <button class="seg-btn" onclick="setCoeff('C', 0.6, this)">0.6</button>
-        </div>
+        <div id="coeffs-c" class="segmented-control"><button class="seg-btn" onclick="setCoeff('C', 0.2, this)">0.2</button><button class="seg-btn" onclick="setCoeff('C', 0.4, this)">0.4</button><button class="seg-btn" onclick="setCoeff('C', 0.6, this)">0.6</button></div>
       </div>
       <div class="counter-card">
         <button id="btn-j" class="action-btn btn-j">J</button>
-        <div class="counter-value">Значение: <span id="count-j">0</span></div>
-        <div class="segmented-control" id="coeffs-j">
-          <button class="seg-btn" onclick="setCoeff('J', 0.2, this)">0.2</button>
-          <button class="seg-btn" onclick="setCoeff('J', 0.3, this)">0.3</button>
-          <button class="seg-btn active" onclick="setCoeff('J', 0.4, this)">0.4</button>
-          <button class="seg-btn" onclick="setCoeff('J', 0.6, this)">0.6</button>
-        </div>
+        <div id="coeffs-j" class="segmented-control"><button class="seg-btn" onclick="setCoeff('J', 0.2, this)">0.2</button><button class="seg-btn" onclick="setCoeff('J', 0.4, this)">0.4</button><button class="seg-btn" onclick="setCoeff('J', 0.6, this)">0.6</button></div>
       </div>
     </div>
   </div>
 
   <script>
     let state = { countC: 0, countJ: 0, coeffC: 0.4, coeffJ: 0.4, historyC: [], historyJ: [], syncId: "" };
-    const apiBucket = "https://kvdb.io/MN98tYwPceB7qXmN2026/";
+    const apiBase = "https://api.npoint.io/";
+    let autoSaveTimeout;
 
     function loadData() {
-      const saved = localStorage.getItem('classic_2026_v8');
-      if (saved) {
-        state = JSON.parse(saved);
-        if (!state.historyC) state.historyC = [];
-        if (!state.historyJ) state.historyJ = [];
-        if (!state.syncId) state.syncId = "";
-        updateCoeffVisuals('C', state.coeffC);
-        updateCoeffVisuals('J', state.coeffJ);
-      }
+      const saved = localStorage.getItem('classic_sync');
+      if (saved) state = JSON.parse(saved);
+      document.getElementById('input-sync-id').value = state.syncId;
       updateUI();
     }
 
     function saveData() {
-      localStorage.setItem('classic_2026_v8', JSON.stringify(state));
-    }
+      state.syncId = document.getElementById('input-sync-id').value.trim();
+      localStorage.setItem('classic_sync', JSON.stringify(state));
+      
+      const status = document.getElementById('cloud-status');
+      if (!state.syncId) { status.textContent = "Введите ID для автосохранения"; return; }
 
-    function getSum(arr) {
-      return arr.reduce((a, b) => a + b, 0);
+      clearTimeout(autoSaveTimeout);
+      status.textContent = "Сохранение...";
+      
+      autoSaveTimeout = setTimeout(async () => {
+        try {
+          const res = await fetch(apiBase + state.syncId, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(state) });
+          status.textContent = res.ok ? "Автосохранено" : "Ошибка сервера";
+        } catch(e) { status.textContent = "Ошибка сети"; }
+      }, 500);
     }
 
     function updateUI() {
-      document.getElementById('count-c').textContent = state.countC;
-      document.getElementById('count-j').textContent = state.countJ;
-      
+      document.getElementById('total-clicks').textContent = state.countC + state.countJ;
+      let total = state.historyC.reduce((a,b)=>a+b,0) + state.historyJ.reduce((a,b)=>a+b,0);
+      document.getElementById('accumulated-output').textContent = total.toFixed(1);
       document.getElementById('input-c').value = state.countC;
       document.getElementById('input-j').value = state.countJ;
-      document.getElementById('input-sync-id').value = state.syncId;
-      
-      document.getElementById('total-clicks').textContent = state.countC + state.countJ;
-      
-      let totalScore = getSum(state.historyC) + getSum(state.historyJ);
-      document.getElementById('accumulated-output').textContent = totalScore.toFixed(1);
     }
 
-    document.getElementById('btn-c').addEventListener('click', () => {
-      state.countC++;
-      state.historyC.push(state.coeffC);
-      updateUI();
-      saveData();
-    });
-
-    document.getElementById('btn-j').addEventListener('click', () => {
-      state.countJ++;
-      state.historyJ.push(state.coeffJ);
-      updateUI();
-      saveData();
-    });
+    document.getElementById('btn-c').onclick = () => { state.countC++; state.historyC.push(state.coeffC); updateUI(); saveData(); };
+    document.getElementById('btn-j').onclick = () => { state.countJ++; state.historyJ.push(state.coeffJ); updateUI(); saveData(); };
 
     function setCoeff(type, val, btn) {
       if (type === 'C') state.coeffC = val; else state.coeffJ = val;
+      saveData();
       btn.parentElement.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
+    }
+
+    function applyManual() {
+      state.countC = parseInt(document.getElementById('input-c').value) || 0;
+      state.countJ = parseInt(document.getElementById('input-j').value) || 0;
       saveData();
-    }
-
-    function updateCoeffVisuals(type, val) {
-      const containerId = type === 'C' ? 'coeffs-c' : 'coeffs-j';
-      document.querySelectorAll(`#${containerId} .seg-btn`).forEach(btn => {
-        if (parseFloat(btn.textContent) === val) btn.classList.add('active');
-        else btn.classList.remove('active');
-      });
-    }
-
-    function toggleTab(tab) {
-      const pManual = document.getElementById('panel-manual');
-      const pCloud = document.getElementById('panel-cloud');
-      const btnManual = document.getElementById('btn-tab-manual');
-      const btnCloud = document.getElementById('btn-tab-cloud');
-
-      if (tab === 'manual') {
-        if (pManual.style.display === 'block') {
-          pManual.style.display = 'none';
-          btnManual.classList.remove('active');
-        } else {
-          pManual.style.display = 'block';
-          pCloud.style.display = 'none';
-          btnManual.classList.add('active');
-          btnCloud.classList.remove('active');
-        }
-      } else {
-        if (pCloud.style.display === 'block') {
-          pCloud.style.display = 'none';
-          btnCloud.classList.remove('active');
-        } else {
-          pCloud.style.display = 'block';
-          pManual.style.display = 'none';
-          btnCloud.classList.add('active');
-          btnManual.classList.remove('active');
-        }
-      }
-    }
-
-    function applyManualOverride() {
-      let newC = parseInt(document.getElementById('input-c').value) || 0;
-      let newJ = parseInt(document.getElementById('input-j').value) || 0;
-
-      while (state.historyC.length > newC) state.historyC.pop();
-      while (state.historyC.length < newC) state.historyC.push(0.4);
-
-      while (state.historyJ.length > newJ) state.historyJ.pop();
-      while (state.historyJ.length < newJ) state.historyJ.push(0.4);
-
-      state.countC = newC;
-      state.countJ = newJ;
-
       updateUI();
-      saveData();
-      toggleTab('manual'); 
-    }
-
-    const apiBase = "https://api.npoint.io/";
-
-    async function cloudPush() {
-      const id = document.getElementById('input-sync-id').value.trim();
-      if (!id) { alert("Введите ID вашего JSON bin с сайта npoint.io"); return; }
-      
-      const btn = document.querySelector('.cloud-btn.primary');
-      btn.textContent = "Сохранение...";
-      
-      try {
-        const response = await fetch(apiBase + id, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(state)
-        });
-        if (response.ok) alert("Данные успешно отправлены в облако!");
-        else alert("Ошибка при сохранении");
-      } catch (e) { alert("Ошибка сети"); }
-      btn.textContent = "В облако";
     }
 
     async function cloudPull() {
       const id = document.getElementById('input-sync-id').value.trim();
-      if (!id) { alert("Введите ID"); return; }
-      
-      const btn = document.querySelectorAll('.cloud-btn')[0];
-      btn.textContent = "Загрузка...";
-      
-      try {
-        const response = await fetch(apiBase + id);
-        if (response.ok) {
-          state = await response.json();
-          saveData(); // Сохраняем локально после загрузки
-          updateCoeffVisuals('C', state.coeffC);
-          updateCoeffVisuals('J', state.coeffJ);
-          updateUI();
-          alert("Данные загружены из облака!");
-        } else {
-          alert("Не удалось найти данные с этим ID");
-        }
-      } catch (e) { alert("Ошибка при загрузке"); }
-      btn.textContent = "Скачать";
+      if (!id) return;
+      const res = await fetch(apiBase + id);
+      if (res.ok) { state = await res.json(); saveData(); updateUI(); alert("Загружено!"); }
+    }
+
+    function toggleTab(t) {
+      const p1 = document.getElementById('panel-manual');
+      const p2 = document.getElementById('panel-cloud');
+      if (t === 'manual') { p1.style.display = p1.style.display === 'block' ? 'none' : 'block'; p2.style.display = 'none'; }
+      else { p2.style.display = p2.style.display === 'block' ? 'none' : 'block'; p1.style.display = 'none'; }
     }
 
     window.onload = loadData;
