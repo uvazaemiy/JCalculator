@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+ф<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>2026 Sync Pro</title>
+  <title>2026 Sync Pro // Auto-Save</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap');
     :root { --bg-dark: #1a1a20; }
@@ -18,6 +18,7 @@
       max-width: 480px;
       border: 3px solid transparent;
       background-clip: padding-box;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
     }
     /* Анимация контура */
     .bento-container::before {
@@ -58,8 +59,8 @@
     </div>
 
     <div class="btn-group">
-      <button class="settings-btn" onclick="toggleTab('manual')">Настройки</button>
-      <button class="settings-btn" onclick="toggleTab('cloud')">Облако</button>
+      <button class="settings-btn" id="btn-manual" onclick="toggleTab('manual')">Настройки</button>
+      <button class="settings-btn" id="btn-cloud" onclick="toggleTab('cloud')">Облако</button>
     </div>
 
     <div id="panel-manual" class="settings-panel">
@@ -70,8 +71,7 @@
     <div id="panel-cloud" class="settings-panel">
       <div style="font-size: 12px; margin-bottom: 5px;">ID синхронизации</div>
       <input type="text" id="input-sync-id" class="modern-input" placeholder="Введите ID...">
-      <button class="cloud-btn" style="background:#059669" onclick="loadFromCloud()">1. Загрузить данные</button>
-      <button class="cloud-btn" onclick="saveToCloud()">2. Сохранить в облако</button>
+      <button class="cloud-btn" style="background:#059669" onclick="loadFromCloud()">Загрузить данные</button>
       <div id="cloud-status" style="margin-top:15px; font-size:12px; text-align:center; color:#a1a1aa">Статус: Ожидание...</div>
     </div>
 
@@ -100,11 +100,18 @@
   <script>
     let state = { countC: 0, countJ: 0, coeffC: 0.4, coeffJ: 0.4, historyC: [], historyJ: [], syncId: "" };
     let isCloudSynced = false; 
+    let saveTimeout = null;
     const apiBase = "https://api.npoint.io/";
+
+    function updateStatus(text, color = "#a1a1aa") {
+      const el = document.getElementById('cloud-status');
+      el.textContent = text;
+      el.style.color = color;
+    }
 
     function saveLocal() {
       state.syncId = document.getElementById('input-sync-id').value.trim();
-      localStorage.setItem('classic_sync_v13', JSON.stringify(state));
+      localStorage.setItem('classic_sync_v14', JSON.stringify(state));
     }
 
     // Загрузка
@@ -112,45 +119,50 @@
       const id = document.getElementById('input-sync-id').value.trim();
       if (!id) { alert("Введите ID"); return; }
       
-      const status = document.getElementById('cloud-status');
-      status.textContent = "Загрузка...";
+      updateStatus("Загрузка данных...", "#fff");
       
       try {
         const res = await fetch(apiBase + id);
         if (res.ok) {
           const remoteData = await res.json();
-          // Проверка на корректность данных
           if (remoteData && typeof remoteData === 'object') {
              state = remoteData;
-             isCloudSynced = true; // РАЗБЛОКИРОВКА
+             isCloudSynced = true;
              saveLocal();
              updateUI();
              updateCoeffVisuals('C', state.coeffC);
              updateCoeffVisuals('J', state.coeffJ);
-             status.textContent = "Успешно загружено и синхронизировано";
+             updateStatus("Данные загружены", "#10b981");
           }
-        } else { status.textContent = "Ошибка загрузки (ID не найден)"; }
-      } catch(e) { status.textContent = "Ошибка сети"; }
+        } else { updateStatus("Ошибка: ID не найден", "#ef4444"); }
+      } catch(e) { updateStatus("Ошибка сети", "#ef4444"); }
     }
 
-    // Ручное сохранение
-    async function saveToCloud() {
-      if (!isCloudSynced) { alert("Сначала загрузите данные, чтобы убедиться в правильности ID!"); return; }
-      const status = document.getElementById('cloud-status');
-      status.textContent = "Сохранение...";
-      try {
-        const res = await fetch(apiBase + state.syncId, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(state) });
-        status.textContent = res.ok ? "Сохранено в облако" : "Ошибка сервера";
-      } catch(e) { status.textContent = "Ошибка сети"; }
-    }
-
-    // Авто-сохранение (только если уже синхронизировано)
+    // Авто-сохранение (с задержкой для удобства)
     function autoSave() {
       saveLocal();
-      if (isCloudSynced) {
-         // Делаем фоновое сохранение без смены статуса (чтобы не отвлекать)
-         fetch(apiBase + state.syncId, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(state) }).catch(e => console.log("Auto-save failed"));
-      }
+      if (!isCloudSynced) return;
+
+      updateStatus("Сохраняю...", "#f59e0b");
+      
+      clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(async () => {
+        try {
+          const res = await fetch(apiBase + state.syncId, { 
+            method: 'POST', 
+            headers: {'Content-Type': 'application/json'}, 
+            body: JSON.stringify(state) 
+          });
+          if (res.ok) {
+             updateStatus("Данные успешно сохранены!", "#10b981");
+             setTimeout(() => { if(document.getElementById('cloud-status').textContent === "Данные успешно сохранены!") updateStatus("Синхронизировано"); }, 3000);
+          } else {
+             updateStatus("Ошибка сохранения", "#ef4444");
+          }
+        } catch(e) { 
+          updateStatus("Ошибка сети", "#ef4444"); 
+        }
+      }, 1000);
     }
 
     function addClick(type) {
@@ -192,12 +204,24 @@
     function toggleTab(t) {
       const p1 = document.getElementById('panel-manual');
       const p2 = document.getElementById('panel-cloud');
-      if (t === 'manual') { p1.style.display = p1.style.display === 'block' ? 'none' : 'block'; p2.style.display = 'none'; }
-      else { p2.style.display = p2.style.display === 'block' ? 'none' : 'block'; p1.style.display = 'none'; }
+      const b1 = document.getElementById('btn-manual');
+      const b2 = document.getElementById('btn-cloud');
+
+      if (t === 'manual') {
+        p1.style.display = p1.style.display === 'block' ? 'none' : 'block';
+        p2.style.display = 'none';
+        b1.classList.toggle('active');
+        b2.classList.remove('active');
+      } else {
+        p2.style.display = p2.style.display === 'block' ? 'none' : 'block';
+        p1.style.display = 'none';
+        b2.classList.toggle('active');
+        b1.classList.remove('active');
+      }
     }
 
     window.onload = () => {
-      const saved = localStorage.getItem('classic_sync_v13');
+      const saved = localStorage.getItem('classic_sync_v14');
       if (saved) {
         state = JSON.parse(saved);
         document.getElementById('input-sync-id').value = state.syncId;
