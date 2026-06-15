@@ -3,38 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>2026 Sync Pro // No Cache</title>
+  <title>2026 Sync Pro</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Exo+2:wght@300;500;700&display=swap');
-    
-    :root { 
-      --bg-dark: #0f0f13; 
-      --neon-pink: #ff00cc; --neon-blue: #3333ff; --neon-cyan: #00ffcc;
-    }
-    
+    :root { --bg-dark: #0f0f13; --neon-pink: #ff00cc; --neon-blue: #3333ff; --neon-cyan: #00ffcc; }
     body { margin: 0; min-height: 100vh; font-family: 'Exo 2', sans-serif; color: #fff; background: var(--bg-dark); display: flex; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; text-transform: uppercase; letter-spacing: 1px; }
-    
-    .bento-container {
-      position: relative; background: #15151e; border-radius: 32px; padding: 32px; width: 100%; max-width: 480px;
-      border: 3px solid transparent; background-clip: padding-box; box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-    }
-
-    .bento-container::before {
-      content: ''; position: absolute; top: -3px; left: -3px; right: -3px; bottom: -3px;
-      border-radius: 35px; background: linear-gradient(45deg, var(--neon-pink), var(--neon-blue), var(--neon-cyan), var(--neon-pink));
-      background-size: 400%; z-index: -1; animation: border-rotate 8s linear infinite;
-    }
+    .bento-container { position: relative; background: #15151e; border-radius: 32px; padding: 32px; width: 100%; max-width: 480px; border: 3px solid transparent; background-clip: padding-box; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
+    .bento-container::before { content: ''; position: absolute; top: -3px; left: -3px; right: -3px; bottom: -3px; border-radius: 35px; background: linear-gradient(45deg, var(--neon-pink), var(--neon-blue), var(--neon-cyan), var(--neon-pink)); background-size: 400%; z-index: -1; animation: border-rotate 8s linear infinite; }
     @keyframes border-rotate { 0% { background-position: 0 0; } 100% { background-position: 400% 0; } }
-
+    .status-bar { font-size: 10px; text-align: center; margin-bottom: 15px; color: #666; letter-spacing: 2px; }
     .results-panel { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 20px; margin-bottom: 20px; }
-    .stat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-weight: 500; }
+    .stat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-weight: 500; }
     .btn-group { display: flex; gap: 10px; margin-bottom: 20px; }
     .settings-btn { flex: 1; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: #888; padding: 12px; border-radius: 12px; cursor: pointer; transition: 0.3s; }
-    .settings-btn.active { background: rgba(255,255,255,0.1); border-color: var(--neon-cyan); color: #fff; text-shadow: 0 0 10px var(--neon-cyan); }
+    .settings-btn.active { background: rgba(255,255,255,0.1); border-color: var(--neon-cyan); color: #fff; }
     .settings-panel { display: none; background: rgba(0,0,0,0.2); border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); }
     .modern-input { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 10px; border-radius: 8px; width: 100%; box-sizing: border-box; margin-top: 5px; font-family: inherit;}
     .cloud-btn { width: 100%; background: var(--neon-blue); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; margin-top: 10px; font-weight: 700; }
-    
     .counters-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
     .counter-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 15px; display: flex; flex-direction: column; align-items: center; }
     .action-btn { width: 80px; height: 80px; border-radius: 20px; border: 2px solid rgba(255,255,255,0.2); font-size: 40px; color: white; cursor: pointer; margin-bottom: 15px; font-family: 'Playfair Display', serif; font-style: italic; display: flex; justify-content: center; align-items: center; }
@@ -46,29 +31,25 @@
   </style>
 </head>
 <body>
-
   <div class="bento-container">
+    <div id="cloud-status" class="status-bar">ОЖИДАНИЕ СИНХРОНИЗАЦИИ...</div>
     <div class="results-panel">
-      <div class="stat-row"><span>Сумма</span><span id="total-clicks">0</span></div>
-      <div class="stat-row"><span>Итог</span><span id="accumulated-output" style="font-weight:700; font-size: 20px;">0.0</span></div>
+      <div class="stat-row"><span>Итог</span><span id="accumulated-output" style="font-weight:700; font-size: 20px; color: var(--neon-cyan);">0.0</span></div>
+      <div class="stat-row"><span>Счетчик C:</span><span id="val-c">0</span></div>
+      <div class="stat-row"><span>Счетчик J:</span><span id="val-j">0</span></div>
     </div>
-
     <div class="btn-group">
       <button class="settings-btn" id="btn-manual" onclick="toggleTab('manual')">Настройки</button>
       <button class="settings-btn" id="btn-cloud" onclick="toggleTab('cloud')">Облако</button>
     </div>
-
     <div id="panel-manual" class="settings-panel">
-      <div class="stat-row">Счетчик C <input type="number" id="input-c" class="modern-input" onchange="applyManual()"></div>
-      <div class="stat-row">Счетчик J <input type="number" id="input-j" class="modern-input" onchange="applyManual()"></div>
+      <div class="stat-row">C <input type="number" id="input-c" class="modern-input" onchange="applyManual()"></div>
+      <div class="stat-row">J <input type="number" id="input-j" class="modern-input" onchange="applyManual()"></div>
     </div>
-
     <div id="panel-cloud" class="settings-panel">
       <input type="text" id="input-sync-id" class="modern-input" placeholder="Введите ID...">
       <button class="cloud-btn" onclick="loadFromCloud()">Загрузить из облака</button>
-      <div id="cloud-status" style="margin-top:15px; font-size:12px; text-align:center; color:#888">Статус: Ожидание...</div>
     </div>
-
     <div class="counters-grid">
       <div class="counter-card">
         <button id="btn-c" class="action-btn btn-c" onclick="addClick('C')">C</button>
@@ -90,135 +71,52 @@
       </div>
     </div>
   </div>
-
   <script>
     let state = { countC: 0, countJ: 0, coeffC: 0.4, coeffJ: 0.4, historyC: [], historyJ: [], syncId: "" };
     let isCloudSynced = false; 
     let isInitializing = true;
     const apiBase = "https://api.npoint.io/";
-
-    function updateStatus(text, color = "#888") {
-      const el = document.getElementById('cloud-status');
-      if(el) { el.textContent = text; el.style.color = color; }
-    }
-
-    function saveLocal() {
-      state.syncId = document.getElementById('input-sync-id').value.trim();
-      localStorage.setItem('classic_sync_v18', JSON.stringify(state));
-    }
-
+    function updateStatus(text, color = "#666") { const el = document.getElementById('cloud-status'); if(el) { el.textContent = text; el.style.color = color; } }
+    function saveLocal() { state.syncId = document.getElementById('input-sync-id').value.trim(); localStorage.setItem('classic_sync_v18', JSON.stringify(state)); }
     async function loadFromCloud() {
       const id = document.getElementById('input-sync-id').value.trim();
       if (!id) return;
-      
-      isInitializing = true;
-      updateStatus("Загрузка данных...", "#fff");
-      
+      isInitializing = true; updateStatus("ЗАГРУЗКА...", "#fff");
       try {
         const res = await fetch(`${apiBase}${id}?t=${Date.now()}`);
         if (res.ok) {
-          const remoteData = await res.json();
-          if (remoteData && typeof remoteData === 'object') {
-             state = remoteData;
-             isCloudSynced = true;
-             saveLocal();
-             updateUI();
-             updateCoeffVisuals('C', state.coeffC);
-             updateCoeffVisuals('J', state.coeffJ);
-             updateStatus("Синхронизировано", "#00ffcc");
-             isInitializing = false;
-          }
-        } else { updateStatus("Ошибка: ID не найден", "#ff4444"); isInitializing = false; }
-      } catch(e) { updateStatus("Ошибка сети", "#ff4444"); isInitializing = false; }
+           state = await res.json();
+           isCloudSynced = true; saveLocal(); updateUI();
+           updateCoeffVisuals('C', state.coeffC); updateCoeffVisuals('J', state.coeffJ);
+           updateStatus("СИНХРОНИЗИРОВАНО", "#00ffcc"); isInitializing = false;
+        } else { updateStatus("ОШИБКА ID", "#ff4444"); isInitializing = false; }
+      } catch(e) { updateStatus("ОШИБКА СЕТИ", "#ff4444"); isInitializing = false; }
     }
-
     async function autoSave() {
       if (isInitializing) return;
       saveLocal();
       if (!isCloudSynced) return;
-
-      updateStatus("Сохраняю...", "#f59e0b");
-
+      updateStatus("СОХРАНЕНИЕ...", "#f59e0b");
       try {
-        const res = await fetch(apiBase + state.syncId, { 
-          method: 'POST', 
-          headers: {'Content-Type': 'application/json'}, 
-          body: JSON.stringify(state) 
-        });
-        
-        if (res.ok) {
-           updateStatus("Синхронизировано", "#00ffcc");
-        } else {
-           throw new Error("Server error");
-        }
-      } catch(e) { 
-        updateStatus("Ошибка. Повтор через 1с...", "#ff4444");
-        setTimeout(autoSave, 1000);
-      }
+        const res = await fetch(apiBase + state.syncId, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(state) });
+        if (res.ok) updateStatus("СИНХРОНИЗИРОВАНО", "#00ffcc");
+        else throw new Error();
+      } catch(e) { updateStatus("ОШИБКА. ПОВТОР...", "#ff4444"); setTimeout(autoSave, 1000); }
     }
-
-    function addClick(type) {
-      if (isInitializing) return;
-      if (type === 'C') { state.countC++; state.historyC.push(state.coeffC); }
-      else { state.countJ++; state.historyJ.push(state.coeffJ); }
-      updateUI();
-      autoSave();
+    function addClick(type) { if (isInitializing) return; if (type === 'C') { state.countC++; state.historyC.push(state.coeffC); } else { state.countJ++; state.historyJ.push(state.coeffJ); } updateUI(); autoSave(); }
+    function setCoeff(type, val, btn) { if (isInitializing) return; if (type === 'C') state.coeffC = val; else state.coeffJ = val; updateCoeffVisuals(type, val); autoSave(); }
+    function applyManual() { if (isInitializing) return; state.countC = parseInt(document.getElementById('input-c').value) || 0; state.countJ = parseInt(document.getElementById('input-j').value) || 0; updateUI(); autoSave(); }
+    function updateUI() { 
+        document.getElementById('val-c').textContent = state.countC;
+        document.getElementById('val-j').textContent = state.countJ;
+        let total = state.historyC.reduce((a,b)=>a+b,0) + state.historyJ.reduce((a,b)=>a+b,0); 
+        document.getElementById('accumulated-output').textContent = total.toFixed(1); 
+        document.getElementById('input-c').value = state.countC; 
+        document.getElementById('input-j').value = state.countJ; 
     }
-
-    function setCoeff(type, val, btn) {
-      if (isInitializing) return;
-      if (type === 'C') state.coeffC = val; else state.coeffJ = val;
-      updateCoeffVisuals(type, val);
-      autoSave();
-    }
-
-    function applyManual() {
-      if (isInitializing) return;
-      state.countC = parseInt(document.getElementById('input-c').value) || 0;
-      state.countJ = parseInt(document.getElementById('input-j').value) || 0;
-      updateUI();
-      autoSave();
-    }
-
-    function updateUI() {
-      document.getElementById('total-clicks').textContent = state.countC + state.countJ;
-      let total = state.historyC.reduce((a,b)=>a+b,0) + state.historyJ.reduce((a,b)=>a+b,0);
-      document.getElementById('accumulated-output').textContent = total.toFixed(1);
-      document.getElementById('input-c').value = state.countC;
-      document.getElementById('input-j').value = state.countJ;
-    }
-
-    function updateCoeffVisuals(type, val) {
-      const containerId = type === 'C' ? 'coeffs-c' : 'coeffs-j';
-      document.querySelectorAll(`#${containerId} .seg-btn`).forEach(btn => {
-        if (parseFloat(btn.textContent) === val) btn.classList.add('active');
-        else btn.classList.remove('active');
-      });
-    }
-
-    function toggleTab(t) {
-      const p1 = document.getElementById('panel-manual');
-      const p2 = document.getElementById('panel-cloud');
-      const b1 = document.getElementById('btn-manual');
-      const b2 = document.getElementById('btn-cloud');
-      if (t === 'manual') { p1.style.display = p1.style.display === 'block' ? 'none' : 'block'; p2.style.display = 'none'; b1.classList.toggle('active'); b2.classList.remove('active'); }
-      else { p2.style.display = p2.style.display === 'block' ? 'none' : 'block'; p1.style.display = 'none'; b2.classList.toggle('active'); b1.classList.remove('active'); }
-    }
-
-    window.onload = async () => {
-      const saved = localStorage.getItem('classic_sync_v18');
-      if (saved) {
-        state = JSON.parse(saved);
-        document.getElementById('input-sync-id').value = state.syncId;
-        updateUI();
-        updateCoeffVisuals('C', state.coeffC);
-        updateCoeffVisuals('J', state.coeffJ);
-        if (state.syncId) await loadFromCloud();
-        else isInitializing = false;
-      } else {
-        isInitializing = false;
-      }
-    };
+    function updateCoeffVisuals(type, val) { const containerId = type === 'C' ? 'coeffs-c' : 'coeffs-j'; document.querySelectorAll(`#${containerId} .seg-btn`).forEach(btn => { if (parseFloat(btn.textContent) === val) btn.classList.add('active'); else btn.classList.remove('active'); }); }
+    function toggleTab(t) { const p1 = document.getElementById('panel-manual'); const p2 = document.getElementById('panel-cloud'); const b1 = document.getElementById('btn-manual'); const b2 = document.getElementById('btn-cloud'); if (t === 'manual') { p1.style.display = p1.style.display === 'block' ? 'none' : 'block'; p2.style.display = 'none'; b1.classList.toggle('active'); b2.classList.remove('active'); } else { p2.style.display = p2.style.display === 'block' ? 'none' : 'block'; p1.style.display = 'none'; b2.classList.toggle('active'); b1.classList.remove('active'); } }
+    window.onload = async () => { const saved = localStorage.getItem('classic_sync_v18'); if (saved) { state = JSON.parse(saved); document.getElementById('input-sync-id').value = state.syncId; updateUI(); updateCoeffVisuals('C', state.coeffC); updateCoeffVisuals('J', state.coeffJ); if (state.syncId) await loadFromCloud(); else isInitializing = false; } else { isInitializing = false; } };
   </script>
 </body>
-</html>
+</html>00 
