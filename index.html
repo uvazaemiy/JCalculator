@@ -1,9 +1,9 @@
-ф<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>2026 Sync Pro // Auto-Save</title>
+  <title>2026 Sync Pro // Final</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap');
     :root { --bg-dark: #1a1a20; }
@@ -111,7 +111,7 @@
 
     function saveLocal() {
       state.syncId = document.getElementById('input-sync-id').value.trim();
-      localStorage.setItem('classic_sync_v14', JSON.stringify(state));
+      localStorage.setItem('classic_sync_v15', JSON.stringify(state));
     }
 
     // Загрузка
@@ -138,31 +138,30 @@
       } catch(e) { updateStatus("Ошибка сети", "#ef4444"); }
     }
 
-    // Авто-сохранение (с задержкой для удобства)
-    function autoSave() {
+    // Авто-сохранение с бесконечной попыткой ретрая
+    async function autoSave() {
       saveLocal();
       if (!isCloudSynced) return;
 
       updateStatus("Сохраняю...", "#f59e0b");
       
-      clearTimeout(saveTimeout);
-      saveTimeout = setTimeout(async () => {
-        try {
-          const res = await fetch(apiBase + state.syncId, { 
-            method: 'POST', 
-            headers: {'Content-Type': 'application/json'}, 
-            body: JSON.stringify(state) 
-          });
-          if (res.ok) {
-             updateStatus("Данные успешно сохранены!", "#10b981");
-             setTimeout(() => { if(document.getElementById('cloud-status').textContent === "Данные успешно сохранены!") updateStatus("Синхронизировано"); }, 3000);
-          } else {
-             updateStatus("Ошибка сохранения", "#ef4444");
-          }
-        } catch(e) { 
-          updateStatus("Ошибка сети", "#ef4444"); 
+      try {
+        const res = await fetch(apiBase + state.syncId, { 
+          method: 'POST', 
+          headers: {'Content-Type': 'application/json'}, 
+          body: JSON.stringify(state) 
+        });
+        
+        if (res.ok) {
+           updateStatus("Данные успешно сохранены!", "#10b981");
+           setTimeout(() => { if(document.getElementById('cloud-status').textContent.includes("сохранены")) updateStatus("Синхронизировано"); }, 2000);
+        } else {
+           throw new Error("Server Error");
         }
-      }, 1000);
+      } catch(e) { 
+        updateStatus("Ошибка. Повтор через 1с...", "#ef4444");
+        setTimeout(autoSave, 1000); // Рекурсивный вызов для бесконечного ретрая
+      }
     }
 
     function addClick(type) {
@@ -220,14 +219,19 @@
       }
     }
 
-    window.onload = () => {
-      const saved = localStorage.getItem('classic_sync_v14');
+    window.onload = async () => {
+      const saved = localStorage.getItem('classic_sync_v15');
       if (saved) {
         state = JSON.parse(saved);
         document.getElementById('input-sync-id').value = state.syncId;
         updateUI();
         updateCoeffVisuals('C', state.coeffC);
         updateCoeffVisuals('J', state.coeffJ);
+        
+        // Автоматическая загрузка при старте
+        if (state.syncId) {
+            await loadFromCloud();
+        }
       }
     };
   </script>
