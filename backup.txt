@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2026 Classic Interface // Auto-Sync</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap');
+    :root {
+      --bg-dark: #2c2c35;
+      --glass-bg: rgba(255, 255, 255, 0.06);
+      --glass-border: rgba(255, 255, 255, 0.12);
+      --text-main: #f4f4f5;
+      --text-muted: #a1a1aa;
+      --radius-large: 32px;
+      --radius-medium: 20px;
+      --radius-small: 12px;
+    }
+    body { margin: 0; min-height: 100vh; font-family: 'Outfit', sans-serif; color: var(--text-main); background: linear-gradient(135deg, #444453 0%, #25252d 100%); display: flex; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
+    .bento-container { background: rgba(40, 40, 50, 0.5); backdrop-filter: blur(40px); border: 1px solid var(--glass-border); border-radius: var(--radius-large); padding: 32px; width: 100%; max-width: 480px; box-shadow: 0 25px 55px rgba(0,0,0,0.25); }
+    .results-panel { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-medium); padding: 24px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px; }
+    .stat-row { display: flex; justify-content: space-between; align-items: center; }
+    .stat-label { color: var(--text-muted); font-weight: 300; font-size: 15px; }
+    .stat-value { font-size: 20px; font-weight: 500; }
+    .total-output { font-size: 28px; font-weight: 700; color: #fff; }
+    .btn-group { display: flex; gap: 10px; margin-bottom: 20px; }
+    .settings-btn { flex: 1; background: transparent; border: 1px solid var(--glass-border); color: var(--text-muted); padding: 12px; border-radius: var(--radius-small); cursor: pointer; font-family: inherit; font-size: 13px; }
+    .settings-btn.active { background: rgba(255, 255, 255, 0.1); color: var(--text-main); }
+    .settings-panel { display: none; background: rgba(0, 0, 0, 0.15); border-radius: var(--radius-medium); padding: 20px; margin-bottom: 20px; border: 1px solid var(--glass-border); }
+    .input-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .modern-input { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); color: var(--text-main); padding: 8px 12px; border-radius: 8px; width: 80px; text-align: center; font-family: inherit; }
+    .modern-input.wide { width: 140px; text-align: left; }
+    .apply-btn { width: 100%; background: var(--text-main); color: #2c2c35; border: none; padding: 10px; border-radius: 8px; font-weight: 500; cursor: pointer; font-family: inherit; margin-top: 8px; }
+    .cloud-btn { width: 100%; background: rgba(255, 255, 255, 0.08); color: var(--text-main); border: 1px solid var(--glass-border); padding: 10px; border-radius: 8px; font-weight: 500; cursor: pointer; font-family: inherit; }
+    .counters-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .counter-card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-medium); padding: 24px 16px; display: flex; flex-direction: column; align-items: center; }
+    .action-btn { width: 80px; height: 80px; border-radius: 24px; border: none; font-size: 32px; font-weight: 700; color: #fff; cursor: pointer; margin-bottom: 16px; box-shadow: 0 10px 20px rgba(0,0,0,0.15); font-family: inherit; }
+    .btn-c { background: linear-gradient(135deg, #a78bfa, #7c3aed); }
+    .btn-j { background: linear-gradient(135deg, #2dd4bf, #0d9488); }
+    .seg-btn { background: transparent; border: none; color: var(--text-muted); padding: 6px 8px; border-radius: 100px; cursor: pointer; font-family: inherit; font-size: 12px; }
+    .seg-btn.active { background: rgba(255, 255, 255, 0.1); color: #fff; }
+    .counter-value { font-size: 16px; color: var(--text-muted); margin-bottom: 20px; }
+    .counter-value span { color: var(--text-main); font-weight: 500; }
+    .segmented-control { display: flex; background: rgba(0, 0, 0, 0.15); border-radius: 100px; padding: 4px; width: 100%; box-sizing: border-box; justify-content: space-between; }
+  </style>
+</head>
+<body>
+
+  <div class="bento-container">
+    <div class="results-panel">
+      <div class="stat-row">
+        <span class="stat-label">Сумма</span>
+        <span class="stat-value" id="total-clicks">0</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Итоговый расчет</span>
+        <span class="stat-value total-output" id="accumulated-output">0.0</span>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button class="settings-btn" id="btn-tab-manual" onclick="toggleTab('manual')">Настройки</button>
+      <button class="settings-btn" id="btn-tab-cloud" onclick="toggleTab('cloud')">Облако</button>
+    </div>
+
+    <div id="panel-manual" class="settings-panel">
+      <div class="input-row">
+        <span class="stat-label">Счетчик C</span>
+        <input type="number" id="input-c" class="modern-input" value="0">
+      </div>
+      <div class="input-row">
+        <span class="stat-label">Счетчик J</span>
+        <input type="number" id="input-j" class="modern-input" value="0">
+      </div>
+      <button class="apply-btn" onclick="applyManualOverride()">Применить</button>
+    </div>
+
+    <div id="panel-cloud" class="settings-panel">
+      <div class="input-row">
+        <span class="stat-label">ID для связи</span>
+        <input type="text" id="input-sync-id" class="modern-input wide" oninput="saveData()" placeholder="ID...">
+      </div>
+      <button class="cloud-btn" onclick="cloudPull()">Загрузить из облака</button>
+      <div id="cloud-status" style="text-align: center; font-size: 12px; color: #a1a1aa; margin-top: 10px;"></div>
+    </div>
+
+    <div class="counters-grid">
+      <div class="counter-card">
+        <button id="btn-c" class="action-btn btn-c">C</button>
+        <div class="counter-value">Значение: <span id="count-c">0</span></div>
+        <div class="segmented-control" id="coeffs-c">
+          <button class="seg-btn" onclick="setCoeff('C', 0.2, this)">0.2</button>
+          <button class="seg-btn" onclick="setCoeff('C', 0.3, this)">0.3</button>
+          <button class="seg-btn active" onclick="setCoeff('C', 0.4, this)">0.4</button>
+          <button class="seg-btn" onclick="setCoeff('C', 0.6, this)">0.6</button>
+        </div>
+      </div>
+      <div class="counter-card">
+        <button id="btn-j" class="action-btn btn-j">J</button>
+        <div class="counter-value">Значение: <span id="count-j">0</span></div>
+        <div class="segmented-control" id="coeffs-j">
+          <button class="seg-btn" onclick="setCoeff('J', 0.2, this)">0.2</button>
+          <button class="seg-btn" onclick="setCoeff('J', 0.3, this)">0.3</button>
+          <button class="seg-btn active" onclick="setCoeff('J', 0.4, this)">0.4</button>
+          <button class="seg-btn" onclick="setCoeff('J', 0.6, this)">0.6</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let state = { countC: 0, countJ: 0, coeffC: 0.4, coeffJ: 0.4, historyC: [], historyJ: [], syncId: "" };
+    const apiBase = "https://api.npoint.io/";
+    let autoSaveTimeout;
+    let isSaving = false;
+
+    function loadData() {
+      const saved = localStorage.getItem('classic_2026_v9');
+      if (saved) {
+        state = JSON.parse(saved);
+        updateCoeffVisuals('C', state.coeffC);
+        updateCoeffVisuals('J', state.coeffJ);
+      }
+      updateUI();
+    }
+
+    function saveData() {
+      state.syncId = document.getElementById('input-sync-id').value.trim();
+      localStorage.setItem('classic_2026_v9', JSON.stringify(state));
+      triggerAutoSave();
+    }
+
+    async function triggerAutoSave() {
+      if (!state.syncId) return;
+      const status = document.getElementById('cloud-status');
+      clearTimeout(autoSaveTimeout);
+      autoSaveTimeout = setTimeout(async () => {
+        if (isSaving) return;
+        isSaving = true;
+        status.textContent = "Сохранение...";
+        try {
+          const response = await fetch(apiBase + state.syncId, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(state)
+          });
+          if (response.ok) status.textContent = "Сохранено";
+          else status.textContent = "Ошибка сервера";
+        } catch (e) {
+          status.textContent = "Ошибка сети";
+        } finally {
+          isSaving = false;
+        }
+      }, 500);
+    }
+
+    function updateUI() {
+      document.getElementById('count-c').textContent = state.countC;
+      document.getElementById('count-j').textContent = state.countJ;
+      document.getElementById('input-c').value = state.countC;
+      document.getElementById('input-j').value = state.countJ;
+      document.getElementById('input-sync-id').value = state.syncId;
+      document.getElementById('total-clicks').textContent = state.countC + state.countJ;
+      let totalScore = (state.historyC.reduce((a,b)=>a+b,0)) + (state.historyJ.reduce((a,b)=>a+b,0));
+      document.getElementById('accumulated-output').textContent = totalScore.toFixed(1);
+    }
+
+    document.getElementById('btn-c').addEventListener('click', () => { state.countC++; state.historyC.push(state.coeffC); updateUI(); saveData(); });
+    document.getElementById('btn-j').addEventListener('click', () => { state.countJ++; state.historyJ.push(state.coeffJ); updateUI(); saveData(); });
+
+    function setCoeff(type, val, btn) {
+      if (type === 'C') state.coeffC = val; else state.coeffJ = val;
+      btn.parentElement.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      saveData();
+    }
+
+    function applyManualOverride() {
+      state.countC = parseInt(document.getElementById('input-c').value) || 0;
+      state.countJ = parseInt(document.getElementById('input-j').value) || 0;
+      updateUI();
+      saveData();
+      toggleTab('manual');
+    }
+
+    function toggleTab(tab) {
+      const pManual = document.getElementById('panel-manual');
+      const pCloud = document.getElementById('panel-cloud');
+      if (tab === 'manual') { 
+        pManual.style.display = pManual.style.display === 'block' ? 'none' : 'block'; 
+        pCloud.style.display = 'none'; 
+      } else { 
+        pCloud.style.display = pCloud.style.display === 'block' ? 'none' : 'block'; 
+        pManual.style.display = 'none'; 
+      }
+    }
+
+    async function cloudPull() {
+      const id = document.getElementById('input-sync-id').value.trim();
+      if (!id) return;
+      try {
+        const response = await fetch(apiBase + id);
+        if (response.ok) {
+          state = await response.json();
+          saveData();
+          updateCoeffVisuals('C', state.coeffC);
+          updateCoeffVisuals('J', state.coeffJ);
+          updateUI();
+          alert("Данные загружены!");
+        }
+      } catch (e) { alert("Ошибка загрузки"); }
+    }
+
+    function updateCoeffVisuals(type, val) {
+      const containerId = type === 'C' ? 'coeffs-c' : 'coeffs-j';
+      document.querySelectorAll(`#${containerId} .seg-btn`).forEach(btn => {
+        if (parseFloat(btn.textContent) === val) btn.classList.add('active');
+        else btn.classList.remove('active');
+      });
+    }
+
+    window.onload = loadData;
+  </script>
+</body>
+</html>
