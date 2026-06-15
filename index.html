@@ -419,54 +419,48 @@
       toggleTab('manual'); 
     }
 
+    const apiBase = "https://api.npoint.io/";
+
     async function cloudPush() {
       const id = document.getElementById('input-sync-id').value.trim();
-      if (!id) { alert("Введите ID Синхронизации"); return; }
-      state.syncId = id;
-      saveData();
+      if (!id) { alert("Введите ID вашего JSON bin с сайта npoint.io"); return; }
       
       const btn = document.querySelector('.cloud-btn.primary');
-      const originalText = btn.textContent;
       btn.textContent = "Сохранение...";
       
       try {
-        const response = await fetch(apiBucket + id, {
+        const response = await fetch(apiBase + id, {
           method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(state)
         });
-        if (response.ok) alert("Данные сохранены в облако!");
-        else alert("Ошибка сохранения");
-      } catch (e) {
-        alert("Нет связи с сервером");
-      }
-      btn.textContent = originalText;
+        if (response.ok) alert("Данные успешно отправлены в облако!");
+        else alert("Ошибка при сохранении");
+      } catch (e) { alert("Ошибка сети"); }
+      btn.textContent = "В облако";
     }
 
     async function cloudPull() {
       const id = document.getElementById('input-sync-id').value.trim();
-      if (!id) { alert("Введите ID Синхронизации"); return; }
+      if (!id) { alert("Введите ID"); return; }
       
       const btn = document.querySelectorAll('.cloud-btn')[0];
-      const originalText = btn.textContent;
       btn.textContent = "Загрузка...";
       
       try {
-        const response = await fetch(apiBucket + id);
-        if (response.status === 404) {
-          alert("Данные с таким ID не найдены в облаке");
-        } else if (response.ok) {
-          const cloudState = await response.json();
-          state = cloudState;
-          saveData();
+        const response = await fetch(apiBase + id);
+        if (response.ok) {
+          state = await response.json();
+          saveData(); // Сохраняем локально после загрузки
           updateCoeffVisuals('C', state.coeffC);
           updateCoeffVisuals('J', state.coeffJ);
           updateUI();
-          alert("Данные успешно загружены!");
+          alert("Данные загружены из облака!");
+        } else {
+          alert("Не удалось найти данные с этим ID");
         }
-      } catch (e) {
-        alert("Ошибка при загрузке данных");
-      }
-      btn.textContent = originalText;
+      } catch (e) { alert("Ошибка при загрузке"); }
+      btn.textContent = "Скачать";
     }
 
     window.onload = loadData;
