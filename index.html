@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>2026 Classic Interface // Modifier 0.3</title>
+  <title>2026 Classic Interface // Cloud Sync</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap');
     
@@ -114,6 +114,11 @@
       text-align: center; 
       font-family: inherit;
     }
+
+    .modern-input.wide {
+      width: 140px;
+      text-align: left;
+    }
     
     .apply-btn { 
       width: 100%; 
@@ -126,6 +131,29 @@
       cursor: pointer; 
       font-family: inherit;
       margin-top: 8px;
+    }
+
+    .cloud-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .cloud-btn {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+      border: 1px solid var(--glass-border);
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .cloud-btn.primary {
+      background: #8b5cf6;
+      border-color: #a78bfa;
     }
     
     .counters-grid { 
@@ -225,6 +253,17 @@
         <input type="number" id="input-j" class="modern-input" value="0">
       </div>
       <button class="apply-btn" onclick="applyManualOverride()">Применить изменения</button>
+      
+      <div style="height: 1px; background: var(--glass-border); margin: 16px 0;"></div>
+      
+      <div class="input-row">
+        <span class="stat-label">ID Синхронизации</span>
+        <input type="text" id="input-sync-id" class="modern-input wide" placeholder="Напр. ivan_77">
+      </div>
+      <div class="cloud-grid">
+        <button class="cloud-btn" onclick="cloudPull()">Загрузить</button>
+        <button class="cloud-btn primary" onclick="cloudPush()">Сохранить</button>
+      </div>
     </div>
 
     <div class="counters-grid">
@@ -252,12 +291,16 @@
   </div>
 
   <script>
-    let state = { countC: 0, countJ: 0, coeffC: 0.4, coeffJ: 0.4, historyC: [], historyJ: [] };
+    let state = { countC: 0, countJ: 0, coeffC: 0.4, coeffJ: 0.4, historyC: [], historyJ: [], syncId: "" };
+    const apiBucket = "https://kvdb.io/MN98tYwPceB7qXmN2026/";
 
     function loadData() {
-      const saved = localStorage.getItem('classic_2026_v6');
+      const saved = localStorage.getItem('classic_2026_v7');
       if (saved) {
         state = JSON.parse(saved);
+        if (!state.historyC) state.historyC = [];
+        if (!state.historyJ) state.historyJ = [];
+        if (!state.syncId) state.syncId = "";
         updateCoeffVisuals('C', state.coeffC);
         updateCoeffVisuals('J', state.coeffJ);
       }
@@ -265,7 +308,7 @@
     }
 
     function saveData() {
-      localStorage.setItem('classic_2026_v6', JSON.stringify(state));
+      localStorage.setItem('classic_2026_v7', JSON.stringify(state));
     }
 
     function getSum(arr) {
@@ -278,6 +321,7 @@
       
       document.getElementById('input-c').value = state.countC;
       document.getElementById('input-j').value = state.countJ;
+      document.getElementById('input-sync-id').value = state.syncId;
       
       document.getElementById('total-clicks').textContent = state.countC + state.countJ;
       
@@ -323,19 +367,11 @@
       let newC = parseInt(document.getElementById('input-c').value) || 0;
       let newJ = parseInt(document.getElementById('input-j').value) || 0;
 
-      while (state.historyC.length > newC) {
-        state.historyC.pop();
-      }
-      while (state.historyC.length < newC) {
-        state.historyC.push(0.4);
-      }
+      while (state.historyC.length > newC) state.historyC.pop();
+      while (state.historyC.length < newC) state.historyC.push(0.4);
 
-      while (state.historyJ.length > newJ) {
-        state.historyJ.pop();
-      }
-      while (state.historyJ.length < newJ) {
-        state.historyJ.push(0.4);
-      }
+      while (state.historyJ.length > newJ) state.historyJ.pop();
+      while (state.historyJ.length < newJ) state.historyJ.push(0.4);
 
       state.countC = newC;
       state.countJ = newJ;
@@ -343,6 +379,48 @@
       updateUI();
       saveData();
       toggleSettings();
+    }
+
+    async function cloudPush() {
+      const id = document.getElementById('input-sync-id').value.trim();
+      if (!id) { alert("Введите ID Синхронизации"); return; }
+      state.syncId = id;
+      saveData();
+      
+      try {
+        const response = await fetch(apiBucket + id, {
+          method: 'POST',
+          body: JSON.stringify(state)
+        });
+        if (response.ok) alert("Успешно сохранено в облако!");
+        else alert("Ошибка сохранения");
+      } catch (e) {
+        alert("Нет связи с сервером");
+      }
+    }
+
+    async function cloudPull() {
+      const id = document.getElementById('input-sync-id').value.trim();
+      if (!id) { alert("Введите ID Синхронизации"); return; }
+      
+      try {
+        const response = await fetch(apiBucket + id);
+        if (response.status === 404) {
+          alert("Данные с таким ID не найдены в облаке");
+          return;
+        }
+        if (response.ok) {
+          const cloudState = await response.json();
+          state = cloudState;
+          saveData();
+          updateCoeffVisuals('C', state.coeffC);
+          updateCoeffVisuals('J', state.coeffJ);
+          updateUI();
+          alert("Данные успешно загружены из облака!");
+        }
+      } catch (e) {
+        alert("Ошибка при загрузке данных");
+      }
     }
 
     window.onload = loadData;
