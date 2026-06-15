@@ -75,17 +75,28 @@
       font-weight: 700; 
       color: #fff; 
     }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
     
     .settings-btn { 
-      width: 100%; 
+      flex: 1;
       background: transparent; 
       border: 1px solid var(--glass-border); 
       color: var(--text-muted); 
       padding: 12px; 
       border-radius: var(--radius-small); 
       cursor: pointer; 
-      margin-bottom: 20px; 
       font-family: inherit;
+      font-size: 13px;
+    }
+
+    .settings-btn.active {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-main);
     }
     
     .settings-panel { 
@@ -137,7 +148,7 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
-      margin-top: 12px;
+      margin-top: 16px;
     }
 
     .cloud-btn {
@@ -241,9 +252,12 @@
       </div>
     </div>
 
-    <button class="settings-btn" onclick="toggleSettings()">Настроить значения вручную</button>
+    <div class="btn-group">
+      <button class="settings-btn" id="btn-tab-manual" onclick="toggleTab('manual')">Настроить вручную</button>
+      <button class="settings-btn" id="btn-tab-cloud" onclick="toggleTab('cloud')">Синхронизация</button>
+    </div>
 
-    <div id="settings-panel" class="settings-panel">
+    <div id="panel-manual" class="settings-panel">
       <div class="input-row">
         <span class="stat-label">Счетчик C</span>
         <input type="number" id="input-c" class="modern-input" value="0">
@@ -253,16 +267,16 @@
         <input type="number" id="input-j" class="modern-input" value="0">
       </div>
       <button class="apply-btn" onclick="applyManualOverride()">Применить изменения</button>
-      
-      <div style="height: 1px; background: var(--glass-border); margin: 16px 0;"></div>
-      
+    </div>
+
+    <div id="panel-cloud" class="settings-panel">
       <div class="input-row">
-        <span class="stat-label">ID Синхронизации</span>
-        <input type="text" id="input-sync-id" class="modern-input wide" placeholder="Напр. ivan_77">
+        <span class="stat-label">Ваш ID для связи</span>
+        <input type="text" id="input-sync-id" class="modern-input wide" placeholder="Напр. ivan_99">
       </div>
       <div class="cloud-grid">
-        <button class="cloud-btn" onclick="cloudPull()">Загрузить</button>
-        <button class="cloud-btn primary" onclick="cloudPush()">Сохранить</button>
+        <button class="cloud-btn" onclick="cloudPull()">Скачать</button>
+        <button class="cloud-btn primary" onclick="cloudPush()">В облако</button>
       </div>
     </div>
 
@@ -295,7 +309,7 @@
     const apiBucket = "https://kvdb.io/MN98tYwPceB7qXmN2026/";
 
     function loadData() {
-      const saved = localStorage.getItem('classic_2026_v7');
+      const saved = localStorage.getItem('classic_2026_v8');
       if (saved) {
         state = JSON.parse(saved);
         if (!state.historyC) state.historyC = [];
@@ -308,7 +322,7 @@
     }
 
     function saveData() {
-      localStorage.setItem('classic_2026_v7', JSON.stringify(state));
+      localStorage.setItem('classic_2026_v8', JSON.stringify(state));
     }
 
     function getSum(arr) {
@@ -358,9 +372,33 @@
       });
     }
 
-    function toggleSettings() {
-      const p = document.getElementById('settings-panel');
-      p.style.display = p.style.display === 'block' ? 'none' : 'block';
+    function toggleTab(tab) {
+      const pManual = document.getElementById('panel-manual');
+      const pCloud = document.getElementById('panel-cloud');
+      const btnManual = document.getElementById('btn-tab-manual');
+      const btnCloud = document.getElementById('btn-tab-cloud');
+
+      if (tab === 'manual') {
+        if (pManual.style.display === 'block') {
+          pManual.style.display = 'none';
+          btnManual.classList.remove('active');
+        } else {
+          pManual.style.display = 'block';
+          pCloud.style.display = 'none';
+          btnManual.classList.add('active');
+          btnCloud.classList.remove('active');
+        }
+      } else {
+        if (pCloud.style.display === 'block') {
+          pCloud.style.display = 'none';
+          btnCloud.classList.remove('active');
+        } else {
+          pCloud.style.display = 'block';
+          pManual.style.display = 'none';
+          btnCloud.classList.add('active');
+          btnManual.classList.remove('active');
+        }
+      }
     }
 
     function applyManualOverride() {
@@ -378,7 +416,7 @@
 
       updateUI();
       saveData();
-      toggleSettings();
+      toggleTab('manual'); 
     }
 
     async function cloudPush() {
@@ -387,40 +425,48 @@
       state.syncId = id;
       saveData();
       
+      const btn = document.querySelector('.cloud-btn.primary');
+      const originalText = btn.textContent;
+      btn.textContent = "Сохранение...";
+      
       try {
         const response = await fetch(apiBucket + id, {
           method: 'POST',
           body: JSON.stringify(state)
         });
-        if (response.ok) alert("Успешно сохранено в облако!");
+        if (response.ok) alert("Данные сохранены в облако!");
         else alert("Ошибка сохранения");
       } catch (e) {
         alert("Нет связи с сервером");
       }
+      btn.textContent = originalText;
     }
 
     async function cloudPull() {
       const id = document.getElementById('input-sync-id').value.trim();
       if (!id) { alert("Введите ID Синхронизации"); return; }
       
+      const btn = document.querySelectorAll('.cloud-btn')[0];
+      const originalText = btn.textContent;
+      btn.textContent = "Загрузка...";
+      
       try {
         const response = await fetch(apiBucket + id);
         if (response.status === 404) {
           alert("Данные с таким ID не найдены в облаке");
-          return;
-        }
-        if (response.ok) {
+        } else if (response.ok) {
           const cloudState = await response.json();
           state = cloudState;
           saveData();
           updateCoeffVisuals('C', state.coeffC);
           updateCoeffVisuals('J', state.coeffJ);
           updateUI();
-          alert("Данные успешно загружены из облака!");
+          alert("Данные успешно загружены!");
         }
       } catch (e) {
         alert("Ошибка при загрузке данных");
       }
+      btn.textContent = originalText;
     }
 
     window.onload = loadData;
