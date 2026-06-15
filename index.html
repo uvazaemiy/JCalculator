@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>2026 Classic Interface // Linked Logic</title>
+  <title>2026 Classic Interface // Strict Dependence</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap');
     
     :root {
-      --bg-dark: #1e1e24;
-      --glass-bg: rgba(255, 255, 255, 0.05);
-      --glass-border: rgba(255, 255, 255, 0.1);
+      --bg-dark: #2c2c35;
+      --glass-bg: rgba(255, 255, 255, 0.06);
+      --glass-border: rgba(255, 255, 255, 0.12);
       --text-main: #f4f4f5;
       --text-muted: #a1a1aa;
       --radius-large: 32px;
@@ -23,7 +23,7 @@
       min-height: 100vh; 
       font-family: 'Outfit', sans-serif; 
       color: var(--text-main); 
-      background: linear-gradient(135deg, #2a2a35 0%, #1a1a20 100%);
+      background: linear-gradient(135deg, #444453 0%, #25252d 100%);
       display: flex; 
       justify-content: center; 
       align-items: center; 
@@ -32,14 +32,14 @@
     }
     
     .bento-container { 
-      background: rgba(30, 30, 36, 0.6); 
+      background: rgba(40, 40, 50, 0.5); 
       backdrop-filter: blur(40px); 
       border: 1px solid var(--glass-border); 
       border-radius: var(--radius-large); 
       padding: 32px; 
       width: 100%; 
       max-width: 480px; 
-      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+      box-shadow: 0 25px 55px rgba(0,0,0,0.25);
     }
     
     .results-panel { 
@@ -85,264 +85,4 @@
       border-radius: var(--radius-small); 
       cursor: pointer; 
       margin-bottom: 20px; 
-      font-family: inherit;
-    }
-    
-    .settings-panel { 
-      display: none; 
-      background: rgba(0, 0, 0, 0.15); 
-      border-radius: var(--radius-medium); 
-      padding: 20px; 
-      margin-bottom: 20px; 
-      border: 1px solid var(--glass-border); 
-    }
-    
-    .input-row { 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      margin-bottom: 12px; 
-    }
-    
-    .modern-input { 
-      background: rgba(255, 255, 255, 0.05); 
-      border: 1px solid var(--glass-border); 
-      color: var(--text-main); 
-      padding: 8px 12px; 
-      border-radius: 8px; 
-      width: 80px; 
-      text-align: center; 
-      font-family: inherit;
-    }
-    
-    .apply-btn { 
-      width: 100%; 
-      background: var(--text-main); 
-      color: #1e1e24; 
-      border: none; 
-      padding: 10px; 
-      border-radius: 8px; 
-      font-weight: 500; 
-      cursor: pointer; 
-      font-family: inherit;
-      margin-top: 8px;
-    }
-    
-    .counters-grid { 
-      display: grid; 
-      grid-template-columns: 1fr 1fr; 
-      gap: 20px; 
-    }
-    
-    .counter-card { 
-      background: var(--glass-bg); 
-      border: 1px solid var(--glass-border); 
-      border-radius: var(--radius-medium); 
-      padding: 24px 16px; 
-      display: flex; 
-      flex-direction: column; 
-      align-items: center; 
-    }
-    
-    .action-btn { 
-      width: 80px; 
-      height: 80px; 
-      border-radius: 24px; 
-      border: none; 
-      font-size: 32px; 
-      font-weight: 700; 
-      color: #fff; 
-      cursor: pointer; 
-      margin-bottom: 16px; 
-      box-shadow: 0 10px 20px rgba(0,0,0,0.2); 
-      font-family: inherit;
-    }
-    
-    .btn-c { background: linear-gradient(135deg, #a78bfa, #7c3aed); }
-    .btn-j { background: linear-gradient(135deg, #2dd4bf, #0d9488); }
-    
-    .seg-btn { 
-      background: transparent; 
-      border: none; 
-      color: var(--text-muted); 
-      padding: 6px 12px; 
-      border-radius: 100px; 
-      cursor: pointer; 
-      font-family: inherit;
-    }
-    
-    .seg-btn.active { 
-      background: rgba(255, 255, 255, 0.1); 
-      color: #fff; 
-    }
-
-    .counter-value {
-      font-size: 16px;
-      color: var(--text-muted);
-      margin-bottom: 20px;
-    }
-
-    .counter-value span {
-      color: var(--text-main);
-      font-weight: 500;
-    }
-
-    .segmented-control {
-      display: flex;
-      background: rgba(0, 0, 0, 0.2);
-      border-radius: 100px;
-      padding: 4px;
-      width: 100%;
-      box-sizing: border-box;
-    }
-  </style>
-</head>
-<body>
-
-  <div class="bento-container">
-    <div class="results-panel">
-      <div class="stat-row">
-        <span class="stat-label">Сумма</span>
-        <span class="stat-value" id="total-clicks">0</span>
-      </div>
-      <div class="stat-row">
-        <span class="stat-label">Итоговый расчет</span>
-        <span class="stat-value total-output" id="accumulated-output">0.0</span>
-      </div>
-    </div>
-
-    <button class="settings-btn" onclick="toggleSettings()">Настроить значения вручную</button>
-
-    <div id="settings-panel" class="settings-panel">
-      <div class="input-row">
-        <span class="stat-label">Счетчик C</span>
-        <input type="number" id="input-c" class="modern-input" value="0">
-      </div>
-      <div class="input-row">
-        <span class="stat-label">Счетчик J</span>
-        <input type="number" id="input-j" class="modern-input" value="0">
-      </div>
-      <div class="input-row">
-        <span class="stat-label">Итоговый расчет</span>
-        <input type="number" id="input-score" class="modern-input" step="0.1" value="0.0">
-      </div>
-      <button class="apply-btn" onclick="applyManualOverride()">Применить изменения</button>
-    </div>
-
-    <div class="counters-grid">
-      <div class="counter-card">
-        <button id="btn-c" class="action-btn btn-c">C</button>
-        <div class="counter-value">Значение: <span id="count-c">0</span></div>
-        <div class="segmented-control" id="coeffs-c">
-          <button class="seg-btn" onclick="setCoeff('C', 0.2, this)">0.2</button>
-          <button class="seg-btn active" onclick="setCoeff('C', 0.4, this)">0.4</button>
-          <button class="seg-btn" onclick="setCoeff('C', 0.6, this)">0.6</button>
-        </div>
-      </div>
-      <div class="counter-card">
-        <button id="btn-j" class="action-btn btn-j">J</button>
-        <div class="counter-value">Значение: <span id="count-j">0</span></div>
-        <div class="segmented-control" id="coeffs-j">
-          <button class="seg-btn" onclick="setCoeff('J', 0.2, this)">0.2</button>
-          <button class="seg-btn active" onclick="setCoeff('J', 0.4, this)">0.4</button>
-          <button class="seg-btn" onclick="setCoeff('J', 0.6, this)">0.6</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    let state = { countC: 0, countJ: 0, coeffC: 0.4, coeffJ: 0.4, historyC: [], historyJ: [], manualOffset: 0 };
-
-    function loadData() {
-      const saved = localStorage.getItem('classic_2026_v4');
-      if (saved) {
-        state = JSON.parse(saved);
-        updateCoeffVisuals('C', state.coeffC);
-        updateCoeffVisuals('J', state.coeffJ);
-      }
-      updateUI();
-    }
-
-    function saveData() {
-      localStorage.setItem('classic_2026_v4', JSON.stringify(state));
-    }
-
-    function getSum(arr) {
-      return arr.reduce((a, b) => a + b, 0);
-    }
-
-    function updateUI() {
-      document.getElementById('count-c').textContent = state.countC;
-      document.getElementById('count-j').textContent = state.countJ;
-      
-      document.getElementById('input-c').value = state.countC;
-      document.getElementById('input-j').value = state.countJ;
-      
-      document.getElementById('total-clicks').textContent = state.countC + state.countJ;
-      
-      let totalScore = state.manualOffset + getSum(state.historyC) + getSum(state.historyJ);
-      document.getElementById('accumulated-output').textContent = totalScore.toFixed(1);
-      document.getElementById('input-score').value = totalScore.toFixed(1);
-    }
-
-    document.getElementById('btn-c').addEventListener('click', () => {
-      state.countC++;
-      state.historyC.push(state.coeffC);
-      updateUI();
-      saveData();
-    });
-
-    document.getElementById('btn-j').addEventListener('click', () => {
-      state.countJ++;
-      state.historyJ.push(state.coeffJ);
-      updateUI();
-      saveData();
-    });
-
-    function setCoeff(type, val, btn) {
-      if (type === 'C') state.coeffC = val; else state.coeffJ = val;
-      btn.parentElement.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      saveData();
-    }
-
-    function updateCoeffVisuals(type, val) {
-      const containerId = type === 'C' ? 'coeffs-c' : 'coeffs-j';
-      document.querySelectorAll(`#${containerId} .seg-btn`).forEach(btn => {
-        if (parseFloat(btn.textContent) === val) btn.classList.add('active');
-        else btn.classList.remove('active');
-      });
-    }
-
-    function toggleSettings() {
-      const p = document.getElementById('settings-panel');
-      p.style.display = p.style.display === 'block' ? 'none' : 'block';
-    }
-
-    function applyManualOverride() {
-      let newC = parseInt(document.getElementById('input-c').value) || 0;
-      let newJ = parseInt(document.getElementById('input-j').value) || 0;
-      let newScore = parseFloat(document.getElementById('input-score').value) || 0;
-
-      while (state.historyC.length > newC) state.historyC.pop();
-      while (state.historyC.length < newC) state.historyC.push(state.coeffC);
-
-      while (state.historyJ.length > newJ) state.historyJ.pop();
-      while (state.historyJ.length < newJ) state.historyJ.push(state.coeffJ);
-
-      state.countC = newC;
-      state.countJ = newJ;
-
-      let calcScore = getSum(state.historyC) + getSum(state.historyJ);
-      state.manualOffset = newScore - calcScore;
-
-      updateUI();
-      saveData();
-      toggleSettings();
-    }
-
-    window.onload = loadData;
-  </script>
-</body>
-</html>
+      font-family: inherit
